@@ -1,0 +1,443 @@
+%========================================================================
+% COMPUTATIONAL PHYSICS - PROJECT 4
+% ISING MONTE-CARLO
+%========================================================================
+
+\documentclass[a4paper]{IEEEtran} 
+
+\usepackage{amssymb}
+\usepackage{moreverb}
+\usepackage[cmex10]{amsmath} 
+\usepackage{cite} 
+\usepackage{graphicx} 
+\usepackage[colorlinks=false, hidelinks]{hyperref} 
+
+\usepackage{listings} 
+\usepackage{color} 
+\usepackage{xcolor}  
+\usepackage{microtype} 
+\usepackage{microtype} 
+\usepackage{inconsolata} 
+\usepackage[framemethod=TikZ]{mdframed} 
+\usepackage{alltt}
+\usepackage{sverb} 
+\usepackage{verbatim} 
+\usepackage{pifont} 
+\usepackage{alltt} 
+\usepackage{helvet} 
+
+%==============================================================================
+
+\newcommand{\sz}{\underline{\sigma}^z}
+\newcommand{\sg}[2]{\sigma_{#1,#2}}
+\newcommand{\av}[1]{\langle #1 \rangle}
+
+\title{Monte-Carlo Study of the 2D Ising Model}
+\author{Michael Papasimeon\\ August 25, 1997} 
+\date{August 25, 1997} 
+
+%==============================================================================
+%----------------------------------------------------------------------
+% CODE LISTING SETTINGS
+%----------------------------------------------------------------------
+
+\lstset{language=fortran,
+        %basicstyle=\footnotesize\ttfamily, 
+        basicstyle=\small\ttfamily,
+        columns=fullflexible, 
+        %title=\lstname, 
+        numbers=left, stringstyle=\texttt, 
+        numberstyle={\tiny\texttt}, 
+        keywordstyle=\color{blue}, 
+        commentstyle=\color{darkgreen}, 
+        stringstyle=\color{purple} } 
+
+
+\mdfsetup{skipabove=\topskip, skipbelow=\topskip} 
+
+\definecolor{codebg}{rgb}{0.99,0.99,0.99}
+
+\global\mdfdefinestyle{code}{%
+    frametitlerule=true,%
+    frametitlefont=\small\bfseries\ttfamily,%
+    frametitlebackgroundcolor=lightgray,%
+    backgroundcolor=codebg,%
+    linecolor=gray, linewidth=0.5pt,%
+    leftmargin=0.5cm, rightmargin=0.5cm,%
+    roundcorner=2pt,%
+    innerleftmargin=5pt
+}
+
+\global\mdfdefinestyle{code2}{%
+    topline=false,%
+    bottomline=false,%
+    leftline=true,%
+    rightline=false,%
+    backgroundcolor=codebg,%
+    linecolor=gray, linewidth=0.5pt,%
+    leftmargin=0.0cm, rightmargin=0.0cm,%
+    innerleftmargin=1pt
+}
+
+\newcommand{\showcode}[1]{\begin{mdframed}[style=code] %
+                            \lstinputlisting{#1}% 
+                          \end{mdframed}% 
+}
+
+\newcommand{\showsmallcode}[1]{\begin{mdframed}[style=code2] %
+        \lstinputlisting[basicstyle=\ttfamily\tiny]{#1}% 
+                          \end{mdframed}% 
+}
+
+
+%----------------------------------------------------------------------
+% IEEE SETTINGS
+%----------------------------------------------------------------------
+
+\interdisplaylinepenalty=2500
+\setlength{\IEEEilabelindent}{\IEEEilabelindentB}
+
+%\markboth{630--364 Computational Physics}{} 
+\markboth{Monte-Carlo Study of the 2D Ising Model. Michael Papasimeon. 1997}{} 
+
+
+%==============================================================================
+
+\begin{document}
+\maketitle
+
+%==============================================================================
+
+\begin{abstract}
+\end{abstract}
+
+\section{Aims}
+The main aims are to:
+\begin{itemize}
+    \item Write a FORTRAN program which can represent 
+          a 2D lattice of spin up/down particles using the 2D Ising model.
+    \item Extend the program to use a Monte-Carlo technique to investigate
+          the magnetisation of the lattice for different temperatures.
+    \item Use the program to attempt to determine the critical temperature
+          (where a phase transition occurs) for the ferro-magnetic Ising 
+          model.
+\end{itemize}
+
+%==============================================================================
+
+\section{Theory}
+    Figure~\ref{fig:grid} represents a two dimensional lattice of 
+    $N_s = N_x \times N_y$ particles. Each particle can be either 
+    spin up or spin down. The spin at site $\alpha = (i,j)$
+    is given by $\sigma^{z}_{\alpha}$. 
+    A lattice of $N_s$ particles can be in $2^{N_s}$ possible configurations,
+    represented as $\sz = ( \sigma^z_1,...., \sigma^z_{N_s} )$.
+    The total energy for a given configuration is given by:
+    \[ E(\sigma^z) = -J \sum_{\langle \alpha \beta \rangle} 
+                        \sigma_{\alpha}^{z} \sigma_{\beta}^{z}
+                   -B_z \sum_{\alpha } \sigma_{\alpha}^{z} \]
+
+    For this experiment we take $B_z = 0$ because there is no
+    external magnetic field and $J = 1$, because we are considering
+    the case of a ferromagnet ($J > 0$), to get
+    \[ E(\sigma^z) = -\sum_{\langle \alpha \beta \rangle} 
+                      \sigma_{\alpha}^{z} \sigma_{\beta}^{z} \]
+    We can determine the partition function of the system because we know
+    from statistical mechanics that each configuration is a micro-state of
+    the canonical ensemble. The partition function is then given by
+    \[ Z = \sum_{\sz } e^{-\beta \sz } \] .
+    The probability of obtaining a particular state is given by
+    \[ P(\sz) = \frac{e^{-\beta E(\sz) }}{Z} \]
+    The ensemble average of a physical observable property is:
+    \[ X_{obs} = \langle X \rangle = \sum_{\sz} X(\sz) P(\sz) \]
+    Therefore the magnetisation of the entire lattice is given
+    by summing all the spins at all lattice sites.
+    \[ M(\sz) = \sum_{N_s}^{\alpha = 1} \sigma_{\alpha} \]
+
+    \begin{figure}[t]
+        \caption{2D lattice of $N_x \times N_y$ particles. }
+        \label{fig:grid}
+        \begin{center}
+            \includegraphics[angle=-90,width=5cm]{lattice.eps}
+        \end{center}
+    \end{figure} 
+    
+    We can obtain a number of configurations and determine their magnetisation
+    using the Metropolis algorithm. This involves sweeping through the lattice
+    and selecting a number of sites at random. The magnetisation can then
+    be calculated to be approximated to be the Monte-Carlo average given
+    by:
+    \[ M = \av{M} \approx \frac{1}{N} \sum^{N}_{k=1} M_k \]
+    The weight function used in the Monte-Carlo algorithm is the Boltzmann
+    distribution.
+    At the randomly selected sites $(i,j)$
+    \begin{verbatim}
+        flip_spin(i,j)
+        if (change in energy < 0)
+            accept
+        else
+            if (exp(-beta * change in energy) > eta)
+                accept
+            else
+                reject
+    \end{verbatim}
+    
+    The energy of an entire lattice $E$ is the sum of the energies
+    of all the particles in the lattice. The energy of a single particle
+    is has contributions from it's nearest neighbours in the following
+    way:
+    \[ \epsilon = -J \sg{i}{j} \left[ \sg{i-1}{j} +
+                                      \sg{i}{j+1} +
+                                      \sg{i+1}{j} +
+                                      \sg{i}{j-1} \right] \]
+
+%==============================================================================
+
+\section{Method}
+    The following method was followed in this experiment:
+    \begin{itemize}
+        \item A FORTRAN program (\texttt{ising.f} in Appendix A), was
+              written which represented a 2D lattice of spin up/down 
+              particles.
+            \begin{itemize}
+                \item The user of the program has the option of
+                      starting the lattice with a cold start
+                      (all spins up) or a hot start with all 
+                      spins randomly selected to be up or down
+                      using the pseudo-random number 
+                      generating function \texttt{rand()} 
+                \item A function to print the lattice on the screen
+                      was written
+            \end{itemize}
+        \item A function to calculate the energy of a lattice was
+              written making use of periodic boundary conditions.
+        \item A function to determine the the magnetisation of 
+              a particular lattice configuration was written.
+        \item A function to apply the Metropolis algorithm to a given
+              lattice, $\beta$ and for user specified number of sweeps.
+              The function allows 100 sweeps to allow the lattice
+              to thermalise.
+              The magnetisation is and standard deviation are calculated
+              over 100 configurations, with each configuration separated 
+              by 10 sweeps.
+        \item The Metropolis function is called a number of times
+              for different values of $\beta$ ranging from $0.1$ 
+              to $1.0$.
+    \end{itemize}
+
+%==============================================================================
+
+\section{Results}
+
+    The plots below in this section absolute values of the 
+    magnetisation $|M|$ against the inverse of the
+    temperature $\beta$.
+
+    There program was run for a number of different lattices sizes.
+    The lattices sizes used are: $4 \times 4$, 
+    $6 \times 6$, $8 \times 8$, $10 \times 10$, $12 \times 12$,
+    $14 \times 14$ and $16 \times 16$.
+
+    There are two sets of plots. Set 1 contains plots of the magnetisation
+    against the inverse temperature over 100 configurations
+    and 10 sweeps per configuration. Set 2 contains plots over 50
+    configurations with 40 sweeps per configuration.
+
+    In all the plots the error bars show the error in the magnetisation,
+    where we have:
+    \[ M = \av{M} \pm \sigma_M \]
+    The error bars are the standard deviation in $M$, $\sigma_M$. 
+    The variance $\sigma_{M}^2$ is given by:
+    \[ \sigma_{M}^2 = \frac{1}{N} \left( \av{M^2} - \av{M}^2 \right) \]
+
+    Using the graphs, we can determine the temperature at which
+    the ferromagnetic phase transition occurs, the critical temperature $\beta_c$.
+    The table below summarises these results.
+
+    \begin{center}
+        \begin{tabular}{|r|r|c|c|} \hline
+        $N_x \times N_y$ & $N_s$ & Approx $\beta_c$ (Set 1)
+                                 & Approx $\beta_c$ (Set 2) \\ \hline
+        4x4   & 16  & 0.2 & 0.18 \\ \hline
+        6x6   & 36  & 0.2 & 0.2  \\ \hline
+        8x8   & 64  & 0.2 & 0.2  \\ \hline
+        10x10 & 100 & 0.2 & 0.2  \\ \hline
+        12x12 & 144 & 0.2 & 0.15 \\ \hline
+        14x14 & 196 & 0.21 & 0.2 \\ \hline
+        16x16 & 256 & 0.3 & 0.2  \\ \hline
+        \end{tabular}
+        \vspace{1mm}
+        \begin{center}
+            Table 1 : Approximate Estimates for Critical Temperature
+                      $\beta_c$ from Magnetisation plots.
+        \end{center}
+    \end{center} 
+
+
+%==============================================================================
+
+    \subsection{Set 1: 100 Configurations and 10 Sweeps/Configuration}
+
+    \begin{figure}
+    \caption{Lattice Size $\mathbf{4 \times 4}$}
+    \label{fig:4x4-1}
+    \begin{center}
+        \includegraphics[width=\columnwidth]{4x4_1.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure}
+    \caption{Lattice Size $\mathbf{6 \times 6}$}
+    \label{fig:6x6-1}
+    \begin{center}
+        \includegraphics[width=\columnwidth]{6x6_1.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure}
+    \caption{Lattice Size $\mathbf{8 \times 8}$}
+    \label{fig:8x8-1} 
+    \begin{center}
+        \includegraphics[width=\columnwidth]{8x8_1.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{10 \times 10}$}
+    \label{fig:10x10-1} 
+    \begin{center}
+        \includegraphics[width=\columnwidth]{10x10_1.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{12 \times 12}$}
+    \label{fig:12x12-1} 
+    \begin{center}
+        \includegraphics[width=\columnwidth]{12x12_1.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{14 \times 14}$}
+    \label{fig:14x14-1}
+    \begin{center}
+        \includegraphics[width=\columnwidth]{14x14_1.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{16 \times 16}$}
+    \label{fig:16x16-1} 
+    \begin{center}
+        \includegraphics[width=\columnwidth]{16x16_1.eps}
+    \end{center}
+    \end{figure} 
+
+%==============================================================================
+
+    \subsection{Set 2:  50 Sweeps and 40 Sweeps/Configuration}
+  
+    \begin{figure}
+    \caption{Lattice Size $\mathbf{4 \times 4}$}
+    \label{fig:4x4-2} 
+    \begin{center}
+        \includegraphics[width=\columnwidth]{4x4_2.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{6 \times 6}$}
+    \label{fig:6x6-2} 
+    \begin{center}
+        \includegraphics[width=\columnwidth]{6x6_2.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{8 \times 8}$}
+    \label{fig:8x8-2} 
+    \begin{center}
+        \includegraphics[width=\columnwidth]{8x8_2.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{10 \times 10}$}
+    \label{fig:10x10-2} 
+    \begin{center}
+        \includegraphics[width=\columnwidth]{10x10_2.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure}
+    \caption{Lattice Size $\mathbf{12 \times 12}$}
+    \label{fig:12x12-2} 
+    \begin{center}
+        \includegraphics[width=\columnwidth]{12x12_2.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{14 \times 14}$}
+    \label{fig:14x14-2} 
+    \begin{center}
+        \includegraphics[width=\columnwidth]{14x14_2.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{16 \times 16}$}
+    \label{fig:16x16-2} 
+    \begin{center}
+        \includegraphics[width=\columnwidth]{16x16_2.eps}
+    \end{center}
+    \end{figure} 
+
+%==============================================================================
+
+\section{Discussion}
+
+    In all the simulations of different sized lattices, it is
+    clear to see in the plots of the magnetisation that there is a phase
+    transition occurring.
+
+    What is not clear however is the exact critical temperature $\beta_c$.
+    In most of the cases (for both sweep/configuration setups) the
+    critical temperature is approximately $\beta_c \approx 0.2$.
+    In the large lattice limit we expect to get a value for the critical
+    temperature of $\beta_c = 0.4407$. The only result which approaches
+    this is that of Set 1 for a $16 \times 16$ lattice. For the case
+    of the $8 \times 8$ lattice we obtain $\beta_c \approx 0.2$.
+    Without trying
+    larger lattice sizes we are unable to tell if this is realistic
+    or merely a statistical aberration.
+
+    The magnetisation in the temperature ranging from $\beta = 0.1$ to 
+    the critical temperature $\beta_c$, tends to be quite erratic
+    in all the simulations, with large errors in a number of cases.
+    This made determining the critical temperature difficult, and
+    therefore only approximate results could be obtained.
+
+    The question of finding a relationship between the total lattice
+    size $N_s$ and the critical temperature $\beta_c$ cannot be answered
+    because the majority of the results indicate that $\beta_c \approx 0.2$
+    for $16 \le N_s \le 256 $.
+    Due to the statistical nature of this simulation, it would be more
+    realistic to go through many runs for each lattice size and then
+    take the mean of the estimated critical temperatures.
+
+
+
+%==============================================================================
+
+    \onecolumn
+    \appendix[Code Listing: ising.f]
+    \showcode{ising.f} 
+
+\end{document}
+
+%==============================================================================
+
+
+
