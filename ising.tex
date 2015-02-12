@@ -109,6 +109,12 @@
 %==============================================================================
 
 \begin{abstract}
+This paper was written for an introductory undegraduate class in computational
+physics in 1997. It focuses on Monte-Carlo simulation of the 2D Ising model.
+The work models a regular grid of particles each with spin up or down. The work
+attempts to determine the critical temperature $\beta_c$ where a phase
+transition occurs. 
+The source code listings in \textsc{Fortran77} can be found in the appendices.
 \end{abstract}
 
 \section{Aims}
@@ -139,7 +145,7 @@ The main aims are to:
 
     For this experiment we take $B_z = 0$ because there is no
     external magnetic field and $J = 1$, because we are considering
-    the case of a ferromagnet ($J > 0$), to get
+    the case of a ferromagnet ($J > 0$), to get:
     \[ E(\sigma^z) = -\sum_{\langle \alpha \beta \rangle} 
                       \sigma_{\alpha}^{z} \sigma_{\beta}^{z} \]
     We can determine the partition function of the system because we know
@@ -158,7 +164,7 @@ The main aims are to:
         \caption{2D lattice of $N_x \times N_y$ particles. }
         \label{fig:grid}
         \begin{center}
-            \includegraphics[angle=-90,width=5cm]{lattice.eps}
+            \includegraphics[angle=-90,width=7cm]{lattice.eps}
         \end{center}
     \end{figure} 
     
@@ -229,18 +235,24 @@ The main aims are to:
 
 \section{Results}
 
-    The plots below in this section absolute values of the 
+    Results from the simulation are shown in Figures~\ref{fig:4x4-1} 
+    to~\ref{fig:16x16-2}. 
+    The figures plot the absolute value of the 
     magnetisation $|M|$ against the inverse of the
     temperature $\beta$.
 
-    There program was run for a number of different lattices sizes.
+    The program was run for a number of different lattices sizes.
     The lattices sizes used are: $4 \times 4$, 
     $6 \times 6$, $8 \times 8$, $10 \times 10$, $12 \times 12$,
     $14 \times 14$ and $16 \times 16$.
 
-    There are two sets of plots. Set 1 contains plots of the magnetisation
+    There are two sets of plots. 
+    Set 1 (Figures~\ref{fig:4x4-1} to~\ref{fig:16x16-1})
+    contains plots of the magnetisation
     against the inverse temperature over 100 configurations
-    and 10 sweeps per configuration. Set 2 contains plots over 50
+    and 10 sweeps per configuration. 
+    Set 2 (Figures~\ref{fig:4x4-2} to~\ref{fig:16x16-2})
+    contains plots over 50
     configurations with 40 sweeps per configuration.
 
     In all the plots the error bars show the error in the magnetisation,
@@ -252,9 +264,14 @@ The main aims are to:
 
     Using the graphs, we can determine the temperature at which
     the ferromagnetic phase transition occurs, the critical temperature $\beta_c$.
-    The table below summarises these results.
+    Table~\ref{tbl:betac} summarises these results.
 
-    \begin{center}
+    \begin{table}[ht]
+        \begin{center} 
+        \caption{Approximate Estimates for Critical Temperature
+                 $\beta_c$ from Magnetisation plots.}
+        \label{tbl:betac} 
+
         \begin{tabular}{|r|r|c|c|} \hline
         $N_x \times N_y$ & $N_s$ & Approx $\beta_c$ (Set 1)
                                  & Approx $\beta_c$ (Set 2) \\ \hline
@@ -266,137 +283,10 @@ The main aims are to:
         14x14 & 196 & 0.21 & 0.2 \\ \hline
         16x16 & 256 & 0.3 & 0.2  \\ \hline
         \end{tabular}
-        \vspace{1mm}
-        \begin{center}
-            Table 1 : Approximate Estimates for Critical Temperature
-                      $\beta_c$ from Magnetisation plots.
-        \end{center}
-    \end{center} 
+        \end{center} 
+    \end{table} 
 
-
-%==============================================================================
-
-    \subsection{Set 1: 100 Configurations and 10 Sweeps/Configuration}
-
-    \begin{figure}
-    \caption{Lattice Size $\mathbf{4 \times 4}$}
-    \label{fig:4x4-1}
-    \begin{center}
-        \includegraphics[width=\columnwidth]{4x4_1.eps}
-    \end{center}
-    \end{figure} 
-
-    \begin{figure}
-    \caption{Lattice Size $\mathbf{6 \times 6}$}
-    \label{fig:6x6-1}
-    \begin{center}
-        \includegraphics[width=\columnwidth]{6x6_1.eps}
-    \end{center}
-    \end{figure} 
-
-    \begin{figure}
-    \caption{Lattice Size $\mathbf{8 \times 8}$}
-    \label{fig:8x8-1} 
-    \begin{center}
-        \includegraphics[width=\columnwidth]{8x8_1.eps}
-    \end{center}
-    \end{figure} 
-
-    \begin{figure} 
-    \caption{Lattice Size $\mathbf{10 \times 10}$}
-    \label{fig:10x10-1} 
-    \begin{center}
-        \includegraphics[width=\columnwidth]{10x10_1.eps}
-    \end{center}
-    \end{figure} 
-
-    \begin{figure} 
-    \caption{Lattice Size $\mathbf{12 \times 12}$}
-    \label{fig:12x12-1} 
-    \begin{center}
-        \includegraphics[width=\columnwidth]{12x12_1.eps}
-    \end{center}
-    \end{figure} 
-
-    \begin{figure} 
-    \caption{Lattice Size $\mathbf{14 \times 14}$}
-    \label{fig:14x14-1}
-    \begin{center}
-        \includegraphics[width=\columnwidth]{14x14_1.eps}
-    \end{center}
-    \end{figure} 
-
-    \begin{figure} 
-    \caption{Lattice Size $\mathbf{16 \times 16}$}
-    \label{fig:16x16-1} 
-    \begin{center}
-        \includegraphics[width=\columnwidth]{16x16_1.eps}
-    \end{center}
-    \end{figure} 
-
-%==============================================================================
-
-    \subsection{Set 2:  50 Sweeps and 40 Sweeps/Configuration}
-  
-    \begin{figure}
-    \caption{Lattice Size $\mathbf{4 \times 4}$}
-    \label{fig:4x4-2} 
-    \begin{center}
-        \includegraphics[width=\columnwidth]{4x4_2.eps}
-    \end{center}
-    \end{figure} 
-
-    \begin{figure} 
-    \caption{Lattice Size $\mathbf{6 \times 6}$}
-    \label{fig:6x6-2} 
-    \begin{center}
-        \includegraphics[width=\columnwidth]{6x6_2.eps}
-    \end{center}
-    \end{figure} 
-
-    \begin{figure} 
-    \caption{Lattice Size $\mathbf{8 \times 8}$}
-    \label{fig:8x8-2} 
-    \begin{center}
-        \includegraphics[width=\columnwidth]{8x8_2.eps}
-    \end{center}
-    \end{figure} 
-
-    \begin{figure} 
-    \caption{Lattice Size $\mathbf{10 \times 10}$}
-    \label{fig:10x10-2} 
-    \begin{center}
-        \includegraphics[width=\columnwidth]{10x10_2.eps}
-    \end{center}
-    \end{figure} 
-
-    \begin{figure}
-    \caption{Lattice Size $\mathbf{12 \times 12}$}
-    \label{fig:12x12-2} 
-    \begin{center}
-        \includegraphics[width=\columnwidth]{12x12_2.eps}
-    \end{center}
-    \end{figure} 
-
-    \begin{figure} 
-    \caption{Lattice Size $\mathbf{14 \times 14}$}
-    \label{fig:14x14-2} 
-    \begin{center}
-        \includegraphics[width=\columnwidth]{14x14_2.eps}
-    \end{center}
-    \end{figure} 
-
-    \begin{figure} 
-    \caption{Lattice Size $\mathbf{16 \times 16}$}
-    \label{fig:16x16-2} 
-    \begin{center}
-        \includegraphics[width=\columnwidth]{16x16_2.eps}
-    \end{center}
-    \end{figure} 
-
-%==============================================================================
-
-\section{Discussion}
+    \section{Discussion}
 
     In all the simulations of different sized lattices, it is
     clear to see in the plots of the magnetisation that there is a phase
@@ -426,6 +316,150 @@ The main aims are to:
     Due to the statistical nature of this simulation, it would be more
     realistic to go through many runs for each lattice size and then
     take the mean of the estimated critical temperatures.
+
+
+
+
+%==============================================================================
+
+    \section{Plots of Magnetisation as a function of Inverse Temperature} 
+    This appendix contains the results from all the simulations conducted.
+    The figures show inverse temperature $\beta$ on the $x$-axis and the 
+    grid magnetisation $|M|$ on the $y$-axis. The figures show simulations of 
+    various grid sizes ranging from a small $4 \times 4$ grid all the way up
+    to a $16 \times 16$ grid. The results are divided into two sets.
+
+    Set 1 (Figures~\ref{fig:4x4-1} to~\ref{fig:16x16-1})
+    contains plots of the magnetisation
+    against the inverse temperature over 100 configurations
+    and 10 sweeps per configuration. 
+
+    Set 2 (Figures~\ref{fig:4x4-2} to~\ref{fig:16x16-2})
+    contains plots over 50
+    configurations with 40 sweeps per configuration.
+
+
+    \subsection{Set 1: 100 configurations with 10 sweeps/configuration} 
+
+    
+    \begin{figure}[h] 
+    \caption{Lattice Size $\mathbf{4 \times 4}$}
+    \label{fig:4x4-1}
+    \begin{center}
+        \includegraphics[width=0.99\columnwidth]{4x4_1.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure}
+    \caption{Lattice Size $\mathbf{6 \times 6}$}
+    \label{fig:6x6-1}
+    \begin{center}
+        \includegraphics[width=0.99\columnwidth]{6x6_1.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure}
+    \caption{Lattice Size $\mathbf{8 \times 8}$}
+    \label{fig:8x8-1} 
+    \begin{center}
+        \includegraphics[width=0.99\columnwidth]{8x8_1.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{10 \times 10}$}
+    \label{fig:10x10-1} 
+    \begin{center}
+        \includegraphics[width=0.99\columnwidth]{10x10_1.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{12 \times 12}$}
+    \label{fig:12x12-1} 
+    \begin{center}
+        \includegraphics[width=0.99\columnwidth]{12x12_1.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{14 \times 14}$}
+    \label{fig:14x14-1}
+    \begin{center}
+        \includegraphics[width=0.99\columnwidth]{14x14_1.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{16 \times 16}$}
+    \label{fig:16x16-1} 
+    \begin{center}
+        \includegraphics[width=0.99\columnwidth]{16x16_1.eps}
+    \end{center}
+    \end{figure} 
+
+%==============================================================================
+
+    \subsection{Set 2:  50 Configurations and 40 Sweeps/Configuration}
+   
+    \newpage
+    \begin{figure}
+    \caption{Lattice Size $\mathbf{4 \times 4}$}
+    \label{fig:4x4-2} 
+    \begin{center} 
+        \includegraphics[width=0.99\columnwidth]{4x4_2.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{6 \times 6}$}
+    \label{fig:6x6-2} 
+    \begin{center}
+        \includegraphics[width=0.99\columnwidth]{6x6_2.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{8 \times 8}$}
+    \label{fig:8x8-2} 
+    \begin{center}
+        \includegraphics[width=0.99\columnwidth]{8x8_2.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{10 \times 10}$}
+    \label{fig:10x10-2} 
+    \begin{center}
+        \includegraphics[width=0.99\columnwidth]{10x10_2.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure}
+    \caption{Lattice Size $\mathbf{12 \times 12}$}
+    \label{fig:12x12-2} 
+    \begin{center}
+        \includegraphics[width=0.99\columnwidth]{12x12_2.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{14 \times 14}$}
+    \label{fig:14x14-2} 
+    \begin{center}
+        \includegraphics[width=0.99\columnwidth]{14x14_2.eps}
+    \end{center}
+    \end{figure} 
+
+    \begin{figure} 
+    \caption{Lattice Size $\mathbf{16 \times 16}$}
+    \label{fig:16x16-2} 
+    \begin{center}
+        \includegraphics[width=0.99\columnwidth]{16x16_2.eps}
+    \end{center}
+    \end{figure} 
+
+%==============================================================================
 
 
 
